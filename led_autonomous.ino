@@ -1,9 +1,11 @@
 //const int LED_PIN = 9; // Pin the transistor is connected to // pin 9 (PB1) with OCR1A
-const int PIR_PIN = 2; // Pin the PIR motion sensor is connected to
+const int PIR1_PIN = 2; // Pin the PIR motion sensor is connected to
+const int PIR2_PIN = 3; // Pin the PIR motion sensor is connected to
+const int PIR3_PIN = 4; // Pin the PIR motion sensor is connected to
 const int LDR_PIN = A0; // Pin the LDR light sensor is connected to
 
-const long LIGHT_DELAY_MS = 5 * 60000L; // time for which the light shall stay on when a motion is detected (millis)
-const long FADE_DELAY_MS = 7L; // delay at each step of fading
+const long LIGHT_DELAY_MS = 2 * 60000L; // time for which the light shall stay on when a motion is detected (millis)
+const long FADE_DELAY_MS = 5L; // delay at each step of fading
 const int BRIGHTNESS_THRESHOLD = 100; // threshold for brightness (if sensor value read is <= threshold, light will be on)
 
 const byte ON_VALUE = 255;
@@ -60,7 +62,9 @@ void setup() {
     DDRB |= 0b000000110;  //set pin 9 and 10 as output
 
     // pin direction definitions
-    pinMode(PIR_PIN, INPUT);
+    pinMode(PIR1_PIN, INPUT);
+    pinMode(PIR2_PIN, INPUT);
+    pinMode(PIR3_PIN, INPUT);
     pinMode(LDR_PIN, INPUT);
 
     // turn LEDs "off"
@@ -72,8 +76,12 @@ void loop(){
   Serial.print("brightness:");
   Serial.println(brightness_ldr);
   if(brightness_ldr <= BRIGHTNESS_THRESHOLD || current_brightness == ON_VALUE) { // if ambient brightness low OR already on
+    // check for motion on either PIR
+    boolean motion = digitalRead(PIR1_PIN) || digitalRead(PIR2_PIN) || digitalRead(PIR3_PIN);
+    Serial.print("motion: ");
+    Serial.println(motion);
     // turn the light on if the PIR shows a motion
-    if(digitalRead(PIR_PIN) == 1) { // if motion detected
+    if(motion) { // if motion detected
       Serial.println("Motion -> light on");
         fade(ON_VALUE); // turn on
       light_on_ms = millis(); // save time the lights were turned on
